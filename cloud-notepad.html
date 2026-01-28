@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Notepad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f1f3f5;
+            color: #333;
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .file-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .file-info span {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            textarea {
+                min-height: 300px;
+            }
+        }
+
+        .character-count {
+            text-align: right;
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .provider-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>☁️ Cloud Notepad <span class="provider-badge">GitHub</span></h1>
+        <p class="subtitle">Write, edit, and save text files to cloud storage</p>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- Configuration Section -->
+        <div class="config-section">
+            <div class="config-title">📋 Configuration</div>
+
+            <div class="form-group">
+                <label for="username">GitHub Username</label>
+                <input type="text" id="username" placeholder="e.g., octocat" value="">
+                <div class="helper-text">Your GitHub username where the repository is hosted</div>
+            </div>
+
+            <div class="two-column">
+                <div class="form-group">
+                    <label for="repository">Repository Name</label>
+                    <input type="text" id="repository" placeholder="e.g., my-notes" value="">
+                    <div class="helper-text">Name of your GitHub repository</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="branch">Branch</label>
+                    <input type="text" id="branch" placeholder="e.g., main" value="main">
+                    <div class="helper-text">Git branch to use (default: main)</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="token">GitHub Personal Access Token</label>
+                <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" value="">
+                <div class="helper-text">Create at github.com/settings/tokens with 'repo' and 'contents' permissions (expires in 90+ days)</div>
+            </div>
+        </div>
+
+        <!-- Editor Section -->
+        <div>
+            <div class="config-title" style="color: #333; margin-bottom: 15px;">📝 Text Editor</div>
+
+            <div class="form-group">
+                <label for="filename">File Name</label>
+                <input type="text" id="filename" placeholder="e.g., notes.txt or docs/README.md" value="notes.txt">
+                <div class="helper-text">Specify the file path and name in the repository</div>
+            </div>
+
+            <textarea id="textEditor" placeholder="Start typing or load a file..."></textarea>
+            <div class="character-count"><span id="charCount">0</span> characters</div>
+
+            <div class="loader" id="loader">
+                <span class="spinner"></span>
+                <span>Processing...</span>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="loadFile()">📥 Load File</button>
+                <button class="btn-primary" onclick="saveFile()">💾 Save File</button>
+                <button class="btn-danger" onclick="clearText()">🗑️ Clear Text</button>
+            </div>
+
+            <div class="file-info">
+                <span>📦 Status: <strong id="fileStatus">Ready</strong></span>
+                <span>⏰ Last Modified: <strong id="lastModified">N/A</strong></span>
+                <span>🔐 Authenticated: <strong id="authStatus">No</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Manager
+        const Config = {
+            get: (key) => localStorage.getItem(`notepad_${key}`),
+            set: (key, value) => localStorage.setItem(`notepad_${key}`, value),
+            getAll: () => ({
+                username: localStorage.getItem('notepad_username') || '',
+                repository: localStorage.getItem('notepad_repository') || '',
+                token: localStorage.getItem('notepad_token') || '',
+                branch: localStorage.getItem('notepad_branch') || 'main'
+            })
+        };
+
+        // UI Manager
+        const UI = {
+            showStatus: (message, type = 'info') => {
+                const statusEl = document.getElementById('statusMessage');
+                statusEl.textContent = message;
+                statusEl.className = `status-message show status-${type}`;
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    statusEl.classList.remove('show');
+                }, 5000);
+            },
+
+            setLoading: (isLoading) => {
+                const loader = document.getElementById('loader');
+                const buttons = document.querySelectorAll('.button-group button');
+                const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+                
+                if (isLoading) {
+                    loader.classList.add('active');
+                    buttons.forEach(btn => btn.disabled = true);
+                    inputs.forEach(input => input.disabled = true);
+                } else {
+                    loader.classList.remove('active');
+                    buttons.forEach(btn => btn.disabled = false);
+                    inputs.forEach(input => input.disabled = false);
+                }
+            },
+
+            updateFileInfo: (status, lastModified, isAuth) => {
+                document.getElementById('fileStatus').textContent = status;
+                document.getElementById('lastModified').textContent = lastModified;
+                document.getElementById('authStatus').textContent = isAuth ? 'Yes ✓' : 'No';
+            },
+
+            updateCharCount: () => {
+                const count = document.getElementById('textEditor').value.length;
+                document.getElementById('charCount').textContent = count.toLocaleString();
+            }
+        };
+
+        // GitHub API Manager
+        const GitHubAPI = {
+            validateConfig: () => {
+                const config = Config.getAll();
+                if (!config.username || !config.repository || !config.token) {
+                    UI.showStatus('❌ Please fill in GitHub username, repository, and token', 'error');
+                    return false;
+                }
+                return true;
+            },
+
+            getFileUrl: (filename) => {
+                const config = Config.getAll();
+                return `https://api.github.com/repos/${config.username}/${config.repository}/contents/${filename}?ref=${config.branch}`;
+            },
+
+            encodeBase64: (str) => {
+                return btoa(unescape(encodeURIComponent(str)));
+            },
+
+            decodeBase64: (str) => {
+                try {
+                    return decodeURIComponent(escape(atob(str)));
+                } catch (e) {
+                    return str;
+                }
+            },
+
+            getHeaders: () => {
+                const config = Config.getAll();
+                return {
+                    'Authorization': `Bearer ${config.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                };
+            },
+
+            loadFile: async (filename) => {
+                if (!GitHubAPI.validateConfig()) return false;
+
+                UI.setLoading(true);
+                try {
+                    const url = GitHubAPI.getFileUrl(filename);
+                    
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: GitHubAPI.getHeaders()
+                    });
+
+                    if (response.status === 404) {
+                        UI.showStatus('⚠️ File not found. You can create it by saving.', 'warning');
+                        document.getElementById('textEditor').value = '';
+                        UI.updateFileInfo('Not Found', 'N/A', true);
+                        UI.setLoading(false);
+                        return true;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP Error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.content) {
+                        const decodedContent = GitHubAPI.decodeBase64(data.content);
+                        document.getElementById('textEditor').value = decodedContent;
+                        UI.updateCharCount();
+                        
+                        const lastModified = new Date(data.updated_at || Date.now()).toLocaleString();
+                        UI.updateFileInfo('Loaded', lastModified, true);
+                        
+                        UI.showStatus(`✅ File "${filename}" loaded successfully!`, 'success');
+                        return true;
+                    } else {
+                        UI.showStatus('❌ Error: Could not read file content', 'error');
+                        return false;
+                    }
+
+                } catch (error) {
+                    console.error('Error loading file:', error);
+                    UI.showStatus(`❌ Error loading file: ${error.message}`, 'error');
+                    return false;
+                } finally {
+                    UI.setLoading(false);
+                }
+            },
+
+            saveFile: async (filename, content) => {
+                if (!GitHubAPI.validateConfig()) return false;
+
+                UI.setLoading(true);
+                try {
+                    const url = GitHubAPI.getFileUrl(filename);
+                    const encodedContent = GitHubAPI.encodeBase64(content);
+
+                    // First, try to get the file to check if it exists
+                    let sha = null;
+                    try {
+                        const getResponse = await fetch(url, {
+                            method: 'GET',
+                            headers: GitHubAPI.getHeaders()
+                        });
+                        if (getResponse.ok) {
+                            const data = await getResponse.json();
+                            sha = data.sha;
+                        }
+                    } catch (e) {
+                        // File doesn't exist, which is fine - we'll create it
+                    }
+
+                    // Prepare the payload
+                    const payload = {
+                        message: `Update ${filename} - Cloud Notepad`,
+                        content: encodedContent,
+                        branch: Config.getAll().branch
+                    };
+
+                    if (sha) {
+                        payload.sha = sha;
+                    }
+
+                    // Save or create the file
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: GitHubAPI.getHeaders(),
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP Error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const lastModified = new Date(data.commit.author.date).toLocaleString();
+                    const action = sha ? 'updated' : 'created';
+                    
+                    UI.updateFileInfo('Saved', lastModified, true);
+                    UI.showStatus(`✅ File "${filename}" ${action} successfully! Commit: ${data.commit.sha.substring(0, 7)}`, 'success');
+                    
+                    return true;
+
+                } catch (error) {
+                    console.error('Error saving file:', error);
+                    UI.showStatus(`❌ Error saving file: ${error.message}`, 'error');
+                    return false;
+                } finally {
+                    UI.setLoading(false);
+                }
+            }
+        };
+
+        // Event Listeners
+        document.getElementById('username').addEventListener('change', (e) => {
+            Config.set('username', e.target.value);
+        });
+
+        document.getElementById('repository').addEventListener('change', (e) => {
+            Config.set('repository', e.target.value);
+        });
+
+        document.getElementById('token').addEventListener('change', (e) => {
+            Config.set('token', e.target.value);
+        });
+
+        document.getElementById('branch').addEventListener('change', (e) => {
+            Config.set('branch', e.target.value);
+        });
+
+        document.getElementById('textEditor').addEventListener('input', () => {
+            UI.updateCharCount();
+        });
+
+        // Load saved configuration on page load
+        window.addEventListener('load', () => {
+            const config = Config.getAll();
+            document.getElementById('username').value = config.username;
+            document.getElementById('repository').value = config.repository;
+            document.getElementById('token').value = config.token;
+            document.getElementById('branch').value = config.branch;
+            UI.updateCharCount();
+        });
+
+        // Main Functions
+        async function loadFile() {
+            const filename = document.getElementById('filename').value.trim();
+            
+            if (!filename) {
+                UI.showStatus('⚠️ Please enter a file name', 'warning');
+                return;
+            }
+
+            await GitHubAPI.loadFile(filename);
+        }
+
+        async function saveFile() {
+            const filename = document.getElementById('filename').value.trim();
+            const content = document.getElementById('textEditor').value;
+
+            if (!filename) {
+                UI.showStatus('⚠️ Please enter a file name', 'warning');
+                return;
+            }
+
+            if (!content.trim()) {
+                UI.showStatus('⚠️ Cannot save empty file', 'warning');
+                return;
+            }
+
+            await GitHubAPI.saveFile(filename, content);
+        }
+
+        function clearText() {
+            if (document.getElementById('textEditor').value.trim()) {
+                if (confirm('Are you sure you want to clear all text? This cannot be undone.')) {
+                    document.getElementById('textEditor').value = '';
+                    UI.updateCharCount();
+                    UI.showStatus('🗑️ Text cleared', 'info');
+                    UI.updateFileInfo('Cleared', 'N/A', true);
+                }
+            } else {
+                UI.showStatus('ℹ️ Text area is already empty', 'info');
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + S to save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveFile();
+            }
+            // Ctrl/Cmd + L to load
+            if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                e.preventDefault();
+                loadFile();
+            }
+        });
+    </script>
+
+</body>
+</html>
